@@ -1,0 +1,10 @@
+riddle1 = "I'm always hungry, I must always be fed. The finger I touch, will soon turn red. What am I?"
+answer1 = ["fire", "a fire"]
+riddle2 = "I speak without a mouth and hear without ears. I have no body, but I come alive with wind. What am I?"
+answer2 = ["echo", "an echo"]
+riddle3 = "The more you take, the more you leave behind. What am I?"
+answer3 = ["footsteps", "footstep"]
+riddle4 = "What’s a knight’s favorite type of music?"
+answer4 = ["metal", "heavy metal"]
+riddle5 = "Why did the blacksmith have trouble sleeping at night?"
+answer5 = ["knightmares", "knight mares", "knight-mares"]
