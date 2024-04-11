@@ -1,5 +1,5 @@
-#Kod för äventyrsspel
 import random as random
+import riddles
 
 
 class Colors:
@@ -11,49 +11,11 @@ class Colors:
     blue = "\u001b[34m" #Blå
     purple = "\u001b[35m" #Lila
     cyan = "\u001b[36m" #Cyan
-    
-
-class Monster:
-    def __init__(self, name, STR, HP):
-        self.name = name
-        self.STR = STR
-        self.HP = HP
-    
-    def fight(self, player):
-        while self.HP > 0:
-            input("Press enter to hit the monster!")
-            roll = random.randint(1, 20)
-            if roll == 20:
-                print(f"{Colors.bold}Critical hit!{Colors.remove}")
-                self.HP = 0
-            else:
-                damage = player.STR * roll
-                print(f"{self.name} took {Colors.red}{damage} damage!{Colors.remove}")
-                self.HP -= damage
-                print(f"{self.HP} HP left!")
-
-
-            print(f"{Colors.red}You took {damage} damdage{Colors.remove}")
-            damage = random.randint(1, 20) * self.STR
-            player.HP -= damage
-            if player.HP < 1:
-                game_over()
-        
-        print(f"{self.name} died!")
-        player.lvl += 1
-        print(f"{Colors.bold}Level up!{Colors.remove}")
-                
-
-monsterlst = [Monster("Chompy", 2, 10), Monster("Elgnoblin", 3, 20), Monster("Pissbat", 1, 1), Monster("Borkorc", 5, 50), Monster("Karkus", 1, 50), Monster("Hästjesper", 3, 70), Monster("Puzzlemaster", 20, 200)]
-
-
-def game_over():
-    print(f"{Colors.bold + Colors.red}Game over...{Colors.remove}")
-    exit()
-
-
+ 
+   
 class Player:
     def __init__(self):
+        self.name = ""
         self.HP = 50
         self.max_HP = 50
         self.STR = 2
@@ -75,28 +37,38 @@ class Player:
         
     def add_to_inv(self, item):
         if len(self.inv) == self.inv_size:
-            while True:
-                inp = input("Inventory full, do you want to remove something? (y/n) ->")
-                if inp.lower() == "y":
-                    self.remove_from_inv_menu()
-                elif inp.lower() == "n":
-                    return 1
+            inp = input("Inventory full, do you want to remove something? (y/n) -> ")
+            if inp.lower() == "y":
+                self.remove_from_inv_menu()
+            elif inp.lower() == "n":
+                return 1
                 
         self.inv.append(item)
+        print(f"{item.name} added to your inventory")
         if item.type == "S":
             self.STR += item.bonus
+            print(f"Strength increased by {item.bonus}")
+
+    def use_item(self):
+        pass
 
     def display_inv(self):
         print(f"\nInventory")
         print("-----------")
         if len(self.inv) > 0:
-
-            for i in self.inv:
-                print(i.name, i.bonus)
+            for item in self.inv:
+                if item.bonus != 0:
+                    print(item.name, item.bonus)
+                else:
+                    print(item.name)
                 print()
+            #Säker inmatning
+            inp = input("Do you want to use an item? (y/n) -> ").lower()
+            if inp == "y":
+                self.use_item()                 
         else:
             print("Empty")
-
+        
         
     def stats(self):
         print(f"{Colors.bold}Stats")
@@ -106,7 +78,53 @@ Your HP is {self.HP}/{self.max_HP}
 You are level {self.LVL}
 Your strength is {self.STR}
 Your inventory has {self.inv_size} slots{Colors.remove}""")
-            
+
+
+class Monster:
+    def __init__(self, name, STR, HP):
+        self.name = name
+        self.STR = STR
+        self.HP = HP
+    
+    def fight(self, player):
+        print(f"You encounter a fierce {self.name} with {self.HP} HP, fight for your life or be slayn!")
+        while True:
+            input("Press enter to hit the monster!")
+            roll = random.randint(1, 20)
+            if roll == 20:
+                print(f"{Colors.bold}Critical hit!{Colors.remove}")
+                self.HP = 0
+            else:
+                damage = player.STR * roll
+                print(f"{self.name} took {Colors.red}{damage} damage!{Colors.remove}")
+                self.HP -= damage
+            if self.HP < 1:
+                print(f"{self.name} died!")
+                player.LVL += 1
+                print(f"{Colors.bold}Level up! You're now level {player.LVL}!{Colors.remove}")
+                return
+            else:
+                print(f"{self.name} has {self.HP} HP left!")
+
+            damage = random.randint(1, 10) * self.STR
+            print(f"{Colors.red}You took {damage} damdage{Colors.remove}")
+            player.HP -= damage
+            print(f"You have {player.HP} HP left!")
+            if player.HP < 1:
+                game_over()
+      
+                
+easy_monsters = [Monster("Chompy", 2, 10), Monster("Pissbat", 1, 1), Monster("Smoll Spooder", 3, 5), Monster("Fire breathing salamander", 1, 15), Monster("Fetus Zombie", 0, 2)]
+intermediate_monsters = [Monster("Elgnoblin", 3, 20), Monster("Karkus", 1, 50), Monster("Spoooder", 2, 30)]
+difficult_monsters = [Monster("Hästjesper", 3, 70), Monster("Borkorc", 5, 50), Monster("Super Spooooder", 4, 60)]
+
+#  Monster("Puzzlemaster", 20, 200)
+
+def game_over():
+    print(f"{Colors.bold + Colors.red}Game over...{Colors.remove}")
+    exit()
+
+
 
 # alla items har ett namn, en typ, S för styrkeboostande och H för healing
 # bonus är hur mycket de boostar styrka/hp
@@ -131,6 +149,10 @@ itemlist = [Item("Wooden sword", "S", 1), Item("Stone sword", "S", 2), Item("Dia
 shit_itemlist = [Item("Stone", "", 0), Item("String", "", 0), Item("Stick", "", 0,), Item("Bone", "", 0), Item("Rotten leg", "", 0), Item("Paper", "", 0)]
 
 
+def fight_puzzlemaster():
+    pass
+
+
 def chest_loot():
     chest_inv = []
     num_item = random.randint(1,3)
@@ -142,29 +164,25 @@ def chest_loot():
 
 
 def puzzle_chest():
-    i = 0
-    print("It's a puzzle chest, you have to complete the puzzle in order to get the treasure!")
-    #Riddel ska importeras
-    print("Riddle")
-    while i >= 1:
-        inp = input("->")
-        if inp == 0: #riddle_key
-            print(f"{Colors.green}Congratulations traveler you solved the puzzle{Colors.remove}")
-            chest_loot()   
-        else:
-            print(f"Sorry you {Colors.red}faild{Colors.remove} the puzzle, try again!")
-        i += 1
+    print("It's a puzzle chest! In ordet to claim your prize you must complete the riddle inscribed on the chest in order to get the treasure!")
+    rid, key = riddles.riddle()
+    print(rid)
+    answ = riddles.check_answ(key)
+    if answ == "correct":
+        print(f"{Colors.green}Congratulations traveler you answered correctly, claim your divident and continue on your way{Colors.remove}")
+        return chest_loot() 
     else:
-        print(f"{Colors.red}You failed the puzzle, the chest exploded and you took some damage.{Colors.remove}")
-        player.hp -= 5
-        print(f"Your new HP is:{player.HP}")
-    return
+        print(f"{Colors.red}You failed the puzzle, the chest spontaniously combusted and you were burned.{Colors.remove}")
+        player.HP -= 5
+        print(f"You took 5 damadge, you're now at {player.HP} HP")
+        return []
+        
 
 
 def creat_chest():
     #nor = 100-10
     #Puzz = 9-0
-    roll_puzz = 100 #random.randint(0, 100)
+    roll_puzz = 4 #random.randint(0, 100)
     if roll_puzz >= 10:
         return chest_loot()
     else:
@@ -176,31 +194,33 @@ def generate_room():
     #Kista 59-20
     #Fälla 19-0
     
-    ran_num = (random.randint(0, 100))
+    rand_num = (random.randint(0, 100))
 
-    if 100>= ran_num >=5:
+    if 100>= rand_num >=3:
         monster_room()
-    elif 2>= ran_num >=1:
+    elif 100>= rand_num >=20:
         chest_room()
-    elif 4>= ran_num >=3:
+    elif 2>= rand_num >=1:
         trap_room()
     return
 
 
 def monster_room():
-    mon = random.choice(monsterlst)
-    mon.fight(player)
+    print(player.HP)
+    # EMLIE FIXA 
+    monster = random.choice(monsterlst)
+    monster.fight(player)
     
 
 def chest_room(): 
-    print("You walked in to a chest room!")
+    print("You walked into a chest room! Claim your items quickly and proceed...")
     chest_inv = creat_chest()
     while True:
         i = 0
-        print("What item do you want to take?")
         if len(chest_inv) == 0:
             return
         
+        print("What item do you want to take?")
         for item in chest_inv:
             print(f"{i+1}: {item.name}")
             i += 1
@@ -223,13 +243,13 @@ def chest_room():
       
 
 def trap_room():
-    print("A trap suddenly activates")
+    print("A trap suddenly activates under your feet, are you quick-footed enough as to not fall to your grave?")
     input("Press enter to avoid")
     roll = random.randint(1,20)
     if (roll + player.STR) >= 15:
-        print("You narrowly avoid the trap before you")
+        print("You narrowly avoid the trap laid before you")
     else:
-        print(f"{Colors.red}You fall into the trap and take damage{Colors.remove}")
+        print(f"{Colors.red}You tumble into the trap and spikes impale you{Colors.remove}")
         player.HP = player.HP - 1
         print(f"your HP is now {player.HP}")
     return 
@@ -250,6 +270,11 @@ Choose wisely between (left), (middle) and (right) traveler""")
 
 
 player = Player()
+print("You wake up in a dark and moist dungeon, your head aches and you feel weak...")
+namn = input(f"What is your name traveler\n-> ")
+
+player.name = namn
+print(f"Hello {player.name}.. Have fun in my dungeon *omnious laughter that slowly fades away*")
 while True:
     print("""
 What do you want to do?
