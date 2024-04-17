@@ -1,5 +1,9 @@
-import random as random
+import random
+import os
+import sys
 import riddles
+import mastermind
+import rockpaperscissor
 
 
 class Colors:
@@ -15,7 +19,7 @@ class Colors:
    
 class Player:
     def __init__(self):
-        self.name = ""
+        self.name = "traveler"
         self.HP = 50
         self.max_HP = 50
         self.STR = 2
@@ -23,25 +27,48 @@ class Player:
         self.inv = []
         self.inv_size = 2
 
+    def reset(self):
+        python = sys.executable
+        os.execl(python, python, *sys.argv)
+
     def remove_from_inv(self, item):
         self.inv.remove(item)
         if item.type == "S":
             self.STR -= item.bonus
     
     def remove_from_inv_menu(self):
-        self.display_inv()
-        inp = input("What do you want to remove?")
-        for item in self.inv:
-            if item.name.lower() == inp.lower():
-                self.remove_from_inv(item)
+        found_item = False
+        items_to_remove = []
+        while True:
+            self.display_inv()
+            inp = input("What do you want to remove? ").lower() 
+            for item in self.inv:
+                if item.name.lower() == inp:
+                    items_to_remove.append(item)
+                    found_item = True
+                    break
+            if found_item == True:
+                for items in items_to_remove:
+                    self.remove_from_inv(items)
+                    return
+            else:
+                print("You foolishly claim to own something which you do not")
+            
         
     def add_to_inv(self, item):
-        if len(self.inv) == self.inv_size:
-            inp = input("Inventory full, do you want to remove something? (y/n) -> ")
-            if inp.lower() == "y":
-                self.remove_from_inv_menu()
-            elif inp.lower() == "n":
-                return 1
+        if len(self.inv)>= self.inv_size:
+            
+            while True:
+                inp = input("Your bag is filled Traveler, do you wish to remove something? (y/n) -> ")
+                if inp.lower() == "y":
+                    self.remove_from_inv_menu()
+                    break
+                elif inp.lower() == "n":
+                    return 1
+                else:
+                    print(f"Invalid input {player.name}")
+                    continue
+            
                 
         self.inv.append(item)
         print(f"{item.name} added to your inventory")
@@ -50,7 +77,20 @@ class Player:
             print(f"Strength increased by {item.bonus}")
 
     def use_item(self):
-        pass
+        print("What item do you want to use?")
+        inp = input("->").lower()
+        for item in self.inv:
+            if item.name.lower() == inp.lower() and item.type == "H":
+                if self.HP + item.bonus < self.max_HP:
+                    self.HP += item.bonus
+                    print(f"{Colors.green}you feel your vigour returning, HP is now {Colors.red + self.HP}{Colors.remove}")
+                    self.inv.remove(item)
+                else:
+                    self.HP = self.max_HP
+                    print(f"you feel your vigour returning, HP is now {self.HP}")
+                    self.inv.remove(item)
+            
+            pass
 
     def display_inv(self):
         print(f"\nInventory")
@@ -58,14 +98,13 @@ class Player:
         if len(self.inv) > 0:
             for item in self.inv:
                 if item.bonus != 0:
-                    print(item.name, item.bonus)
+                    if item.type == "H":
+                        print(f"{item.name} {Colors.green}  {item.bonus} {Colors.remove}")
+                    else:
+                        print(f"{item.name} {Colors.red}  {item.bonus}  {Colors.remove}")
                 else:
                     print(item.name)
-                print()
-            #Säker inmatning
-            inp = input("Do you want to use an item? (y/n) -> ").lower()
-            if inp == "y":
-                self.use_item()                 
+                print()  
         else:
             print("Empty")
         
@@ -85,8 +124,11 @@ class Monster:
         self.name = name
         self.STR = STR
         self.HP = HP
+        self.maxHP = HP
+
     
     def fight(self, player):
+        self.HP = self.maxHP
         print(f"You encounter a fierce {self.name} with {self.HP} HP, fight for your life or be slayn!")
         while True:
             input("Press enter to hit the monster!")
@@ -101,7 +143,10 @@ class Monster:
             if self.HP < 1:
                 print(f"{self.name} died!")
                 player.LVL += 1
+                if player.LVL//2:
+                    player.inv_size += 1
                 print(f"{Colors.bold}Level up! You're now level {player.LVL}!{Colors.remove}")
+                self.HP = self.maxHP + random.choice([1, -1, 0, -2, 2])
                 return
             else:
                 print(f"{self.name} has {self.HP} HP left!")
@@ -109,16 +154,30 @@ class Monster:
             damage = random.randint(1, 10) * self.STR
             print(f"{Colors.red}You took {damage} damdage{Colors.remove}")
             player.HP -= damage
-            print(f"You have {player.HP} HP left!")
             if player.HP < 1:
                 game_over()
+            print(f"You have {Colors.red}{player.HP} HP{Colors.remove} left!")
+                        #Säker inmatning
+            inp = input("Do you want to use an item? (y/n) -> ").lower()
+                #printar alltid även när man bara vill slänga item
+            if inp != "y" or inp != "n":
+                print("You can not write")
+            if inp == "y":
+                player.use_item()
+
+
+    def fight_puzzlemaster(self):
+        self.HP -= 100
+        print(f"Puzzlemaster took 100 damage")
+        print(f"He has {self.HP} left")
+        return            
+
       
                 
-easy_monsters = [Monster("Chompy", 2, 10), Monster("Pissbat", 1, 1), Monster("Smoll Spooder", 3, 5), Monster("Fire breathing salamander", 1, 15), Monster("Fetus Zombie", 0, 2)]
+easy_monsters = [Monster("Chompy", 2, 10), Monster("Pissbat", 1, 8), Monster("Smoll Spooder", 3, 5), Monster("Fire breathing salamander", 1, 15), Monster("Fetus Zombie", 0, 2)]
 intermediate_monsters = [Monster("Elgnoblin", 3, 20), Monster("Karkus", 1, 50), Monster("Spoooder", 2, 30)]
 difficult_monsters = [Monster("Hästjesper", 3, 70), Monster("Borkorc", 5, 50), Monster("Super Spooooder", 4, 60)]
-
-#  Monster("Puzzlemaster", 20, 200)
+Boss = Monster("Puzzlemaster", 20, 200)
 
 def game_over():
     print(f"{Colors.bold + Colors.red}Game over...{Colors.remove}")
@@ -150,6 +209,24 @@ shit_itemlist = [Item("Stone", "", 0), Item("String", "", 0), Item("Stick", "", 
 
 
 def fight_puzzlemaster():
+    print("A shining light appears and you get teleported to a grand room.")
+    print("In front of you a large figure stands, It was me all along it whispers silently, I was the voice inside your head, and I was the one who brought you to this dungeon to partake in my game")
+    print("You have shown yourself worthy")
+    print("Do you wanna play a game?")
+    inp = input("(y/n)").lower()
+    if inp != "n" or inp != "y":
+        if inp == "n":
+            print("Have fun playing this game again")
+            player.reset()
+    print("")
+    print("SO YOU WANT TO CHALLENGE ME!!!!!")
+    print("Let the game begin!")
+    play = rockpaperscissor.play()
+    if play == "You win":
+        Monster.fight_puzzlemaster()
+
+        pass
+        
     pass
 
 
@@ -196,19 +273,29 @@ def generate_room():
     
     rand_num = (random.randint(0, 100))
 
-    if 100>= rand_num >=3:
+    if 100>= rand_num >=60:
         monster_room()
-    elif 100>= rand_num >=20:
+    elif 59>= rand_num >=20:
         chest_room()
-    elif 2>= rand_num >=1:
+    elif 19>= rand_num >=0:
         trap_room()
     return
 
 
 def monster_room():
-    print(player.HP)
-    # EMLIE FIXA 
-    monster = random.choice(monsterlst)
+    possible_monsters = easy_monsters
+    if player.LVL > 3:
+        possible_monsters += intermediate_monsters
+    if player.LVL > 6:
+        possible_monsters += difficult_monsters
+    if player.LVL > 9:
+        possible_monsters += difficult_monsters
+    if player.LVL > 10:
+        
+        if random.randint(1, 3) == 1:
+            fight_puzzlemaster()
+        
+    monster = random.choice(possible_monsters)
     monster.fight(player)
     
 
@@ -220,7 +307,7 @@ def chest_room():
         if len(chest_inv) == 0:
             return
         
-        print("What item do you want to take?")
+        print("What item tempts your hands traveler?")
         for item in chest_inv:
             print(f"{i+1}: {item.name}")
             i += 1
@@ -232,7 +319,7 @@ def chest_room():
                 if inp in range(0, i+1):
                     break
             except ValueError:
-                print("Can't type that number idot")
+                print(f"Invalid input {player.name}")
                 
         if inp == i:
             return
@@ -250,7 +337,7 @@ def trap_room():
         print("You narrowly avoid the trap laid before you")
     else:
         print(f"{Colors.red}You tumble into the trap and spikes impale you{Colors.remove}")
-        player.HP = player.HP - 1
+        player.HP = player.HP - random.randint(1,5)
         print(f"your HP is now {player.HP}")
     return 
 
@@ -259,14 +346,14 @@ def choose_room():
     print("""Behind one of these doors lies treasure
 Behind another lies a monster
 Behind the last one lies a trap
-Choose wisely between (left), (middle) and (right) traveler""")
+Choose wisely between the (left), (middle) and (right) door traveler""")
     while True:   
         chose = input("->").lower()
         if chose in ["left", "middle", "right"]:
             generate_room()
             return
         else:
-            print("You can not read nor type L")
+            print(f"Invalid input {player.name}")
 
 
 player = Player()
@@ -274,6 +361,8 @@ print("You wake up in a dark and moist dungeon, your head aches and you feel wea
 namn = input(f"What is your name traveler\n-> ")
 
 player.name = namn
+if len(player.name) == 0:
+    player.name = "traveler"
 print(f"Hello {player.name}.. Have fun in my dungeon *omnious laughter that slowly fades away*")
 while True:
     print("""
@@ -281,20 +370,17 @@ What do you want to do?
 1. Choose a room
 2. See your stats
 3. See your inventory""")
-    inp = int(input("->"))
-    if inp == 1:
+    inp = (input("->"))
+    if str(inp) == "1":
         choose_room()
-    elif inp == 2:
+    elif str(inp) == "2":
         player.stats()
-    elif inp == 3:
+    elif str(inp) == "3":
         player.display_inv()
 
-    elif inp == 4:
-        player.add_to_inv(itemlist[3])
-        player.display_inv()
-        player.inv[0].use(player)
-        player.display_inv()
-        player.stats
+    elif str(inp) == "4":
+        fight_puzzlemaster()
+        player.inv.append(random.choice(itemlist))
 
     else:
         print("You can not read nor type L")
