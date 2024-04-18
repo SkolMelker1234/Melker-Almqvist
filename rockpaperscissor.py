@@ -1,7 +1,8 @@
 import random as rand
 
-rps_lst = ["r", "p", "s"]
+
 def play():
+    rps_lst = ["r", "p", "s"]
     while True:
         inp = input(f"Rock(r), Paper(p) or Scissors(s)?\n")
         enemy = rand.choice(rps_lst)
