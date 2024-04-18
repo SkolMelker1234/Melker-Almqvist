@@ -129,55 +129,52 @@ class Monster:
     
     def fight(self, player):
         self.HP = self.maxHP
-        print(f"You encounter a fierce {self.name} with {self.HP} HP, fight for your life or be slayn!")
-        while True:
-            input("Press enter to hit the monster!")
-            roll = random.randint(1, 20)
-            if roll == 20:
-                print(f"{Colors.bold}Critical hit!{Colors.remove}")
-                self.HP = 0
-            else:
-                damage = player.STR * roll
-                print(f"{self.name} took {Colors.red}{damage} damage!{Colors.remove}")
-                self.HP -= damage
-            if self.HP < 1:
-                print(f"{self.name} died!")
-                player.LVL += 1
-                if player.LVL//2:
-                    player.inv_size += 1
-                print(f"{Colors.bold}Level up! You're now level {player.LVL}!{Colors.remove}")
-                self.HP = self.maxHP + random.choice([1, -1, 0, -2, 2])
-                return
-            else:
-                print(f"{self.name} has {self.HP} HP left!")
+        if self.name == "Hästjesper":
+            print(f"You encounter a wild Hästjesper with {self.HP} HP it charges at you like a mad donkey, fight for your life")
+        elif self.name == "Karcus":
+            print(f"You meet the illustrous Karcus with {self.HP} HP, it is very weak and very stupid, but beware it questions can kill time itself...")
+        else:
+            print(f"You encounter a fierce {self.name} with {self.HP} HP, fight for your life or be slayn!")
+            while True:
+                input("Press enter to hit the monster!")
+                roll = random.randint(1, 20)
+                if roll == 20:
+                    print(f"{Colors.bold}Critical hit!{Colors.remove}")
+                    self.HP = 0
+                else:
+                    damage = player.STR * roll
+                    print(f"{self.name} took {Colors.red}{damage} damage!{Colors.remove}")
+                    self.HP -= damage
+                if self.HP < 1:
+                    print(f"{self.name} died!")
+                    player.LVL += 1
+                    if player.LVL//2:
+                        player.inv_size += 1
+                    print(f"{Colors.bold}Level up! You're now level {player.LVL}!{Colors.remove}")
+                    self.HP = self.maxHP + random.choice([1, -1, 0, -2, 2])
+                    return
+                else:
+                    print(f"{self.name} has {self.HP} HP left!")
 
-            damage = random.randint(1, 10) * self.STR
-            print(f"{Colors.red}You took {damage} damdage{Colors.remove}")
-            player.HP -= damage
-            if player.HP < 1:
-                game_over()
-            print(f"You have {Colors.red}{player.HP} HP{Colors.remove} left!")
+                damage = random.randint(1, 10) * self.STR
+                print(f"{Colors.red}You took {damage} damdage{Colors.remove}")
+                player.HP -= damage
+                if player.HP < 1:
+                    game_over()
+                print(f"You have {Colors.red}{player.HP} HP{Colors.remove} left!")
                         #Säker inmatning
-            inp = input("Do you want to use an item? (y/n) -> ").lower()
+                inp = input("Do you want to use an item? (y/n) -> ").lower()
                 #printar alltid även när man bara vill slänga item
-            if inp != "y" or inp != "n":
-                print("You can not write")
-            if inp == "y":
-                player.use_item()
-
-
-    def fight_puzzlemaster(self):
-        self.HP -= 100
-        print(f"Puzzlemaster took 100 damage")
-        print(f"He has {self.HP} left")
-        return            
-
+                if inp != "y" or inp != "n":
+                    print("You can not write")
+                if inp == "y":
+                    player.use_item()
       
                 
 easy_monsters = [Monster("Chompy", 2, 10), Monster("Pissbat", 1, 8), Monster("Smoll Spooder", 3, 5), Monster("Fire breathing salamander", 1, 15), Monster("Fetus Zombie", 0, 2)]
 intermediate_monsters = [Monster("Elgnoblin", 3, 20), Monster("Karkus", 1, 50), Monster("Spoooder", 2, 30)]
 difficult_monsters = [Monster("Hästjesper", 3, 70), Monster("Borkorc", 5, 50), Monster("Super Spooooder", 4, 60)]
-Boss = Monster("Puzzlemaster", 20, 200)
+Boss = Monster("Puzzlemaster", 20, 300)
 
 def game_over():
     print(f"{Colors.bold + Colors.red}Game over...{Colors.remove}")
@@ -208,26 +205,123 @@ itemlist = [Item("Wooden sword", "S", 1), Item("Stone sword", "S", 2), Item("Dia
 shit_itemlist = [Item("Stone", "", 0), Item("String", "", 0), Item("Stick", "", 0,), Item("Bone", "", 0), Item("Rotten leg", "", 0), Item("Paper", "", 0)]
 
 
+def start_over():
+    print(f"Congratulations on winning the game and defeating the {Colors.bold}Puzzlemaster{Colors.remove}")
+    while True:
+        inp = input(f"Do you want to play again {player.name}? (y/n) ->").lower()
+        if inp in "y" or "n":
+            if inp == "y":
+                player.reset()
+            else:
+                print("See you next time traveller!")
+                print("The program closed successfully")
+                quit()
+        else:
+            print(f"{Colors.red}Incorrect input try again{Colors.remove}")
+
+
 def fight_puzzlemaster():
     print("A shining light appears and you get teleported to a grand room.")
     print("In front of you a large figure stands, It was me all along it whispers silently, I was the voice inside your head, and I was the one who brought you to this dungeon to partake in my game")
     print("You have shown yourself worthy")
     print("Do you wanna play a game?")
-    inp = input("(y/n)").lower()
+    inp = input("(y/n) ").lower()
     if inp != "n" or inp != "y":
         if inp == "n":
-            print("Have fun playing this game again")
+            print("Have fun playing our game again!")
             player.reset()
     print("")
     print("SO YOU WANT TO CHALLENGE ME!!!!!")
     print("Let the game begin!")
+    print("")
     play = rockpaperscissor.play()
     if play == "You win":
-        Monster.fight_puzzlemaster()
+        Boss.HP -= 100
+        print(f"Puzzlemaster took 100 damage")
+        print(f"His new {Colors.red}hp{Colors.remove} is {Colors.red}{Boss.HP}{Colors.remove}")
+        print(f"I underestimated you {player.name}, it will not happen again...")
+        print("")
+    else: 
+        player.HP -= 10
+        print(f"You lost the game and lost {Colors.red}10 hp{Colors.remove}")
+        print(f"Your new {Colors.red}hp{Colors.remove} is: {Colors.red}{player.HP}{Colors.remove}")
+        print(f"Not that smart now {player.name}?")
+        print("Well I will let you live for now")
+        print("But do not be so sure of that next round")
+        print("")
 
-        pass
         
-    pass
+    print("Now time to move on to my next game")
+    print("MASTERMIND!")
+    play = mastermind.play()
+    if play == "You win":
+        Boss.HP -= 100
+        print("Puzzlemaster took 100 damage")
+        print(f"His new {Colors.red}hp{Colors.remove} is {Colors.red}{Boss.HP}{Colors.remove}")
+        print(f"Damn it, you really are a {Colors.bold}MASTERMIND{Colors.remove}")
+        print("")
+
+    else: 
+        player.HP = 0
+        print(f"You lost the game and lost {Colors.red}10 hp{Colors.remove}")
+        print(f"Your new {Colors.red}hp{Colors.remove} is: {Colors.red}{player.HP}{Colors.remove}")
+        print(f"You spectacularly failed to {Colors.bold}CRACK THE CODE...{Colors.remove}")
+        game_over()
+
+
+    print("Now on to my last game, RIDDLES!")
+    print(f"This time you will not beat me {player.name}")
+    rid, key = riddles.riddle()
+    print(rid)
+    answ = riddles.check_answ(key)
+    if answ == "correct":
+        Boss.HP -= 100
+        print("Puzzlemaster took 100 damage!")
+        print("")
+        
+    else:
+        player.HP = 0
+        print("You could not solve all of his puzzles.")
+        print("The Puzzlemaster got bored and smashed you with his mighty intellect")
+        game_over()
+        
+    if Boss.HP <= 0:
+        print("You won everything")
+    else:
+        print(f"I an still {Colors.bold}alive!{Colors.remove}")
+        print("You have one last chance!")
+        print("Solve this final riddle.")
+        print("")
+        rid, key = riddles.riddle()
+        print(rid)
+        print("")
+        answ = riddles.check_answ(key)
+        if answ == "correct":
+            Boss.HP -= 100
+            print("Puzzlemaster took 100 damage!")
+        else:
+            print(f"That was your last chance {player.name}")
+            print("Prepare to die!!!")
+            game_over()
+    if Boss.HP <= 0:
+        print("You won everything")
+        print('''
+Alone, I stand amidst the aftermath of cunning and riddles, the victor in a battle of wits and will. 
+Shadows coil and dissipate around me, defeated by the light of my resolve.
+The echoes of my footsteps are the only company in this silent chamber, yet within me, the memory of allies and mentors echoes louder still.
+With each riddle solved, each obstacle overcome, I forged ahead, fueled by determination and guided by intuition.
+My blade, a whisper in the dark, found its mark true, and with each strike, I carved a path through the labyrinth of uncertainty.
+Now, as the dust settles and the air grows still, I stand tall, the sole architect of my triumph.
+But let it be known, the victory is not mine alone. It is a testament to the resilience of the lone wanderer, the courage of the solitary soul.
+To those who stood beside me in spirit, who whispered words of encouragement in the depths of my solitude, I offer my silent gratitude. 
+Though our paths may diverge, our destinies intertwined for but a fleeting moment, the memory of our shared journey will endure.
+So, with the echoes of victory ringing in my ears and the shadows of doubt banished from my heart, I press onward. 
+For the road stretches ever forward, and the challenges that lie ahead are but new riddles waiting to be solved.
+Farewell to the darkness that once held sway, and welcome to the dawn of a new adventure. 
+Alone, yet undaunted, I march into the unknown, for my spirit is unyielding, and my resolve unwavering.                
+              ''')
+        start_over()
+
 
 
 def chest_loot():
