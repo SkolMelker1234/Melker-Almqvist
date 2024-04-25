@@ -15,7 +15,7 @@ answer5 = ["knightmares", "knight mares"]
 riddle6 = "I’m a heavy metal object, dropped to the sea floor, keeping ships in place."
 answer6 = ["anchor", "an anchor"]
 riddle7 = "The more of this there is, the less you see. What is it"
-answer7 = ["darkness, the darkness"]
+answer7 = [", tdarknesshe darkness"]
 riddle8 = "I speak without a mouth and hear without ears. I have no body, but I come alive with light. What am I?"
 answer8 = ["an image", "a reflection", "image", "reflection"]
 riddle9 = "I'm not alive, but I can grow; I don't have lungs, but I need air; I don't have a mouth, but water kills me. What am I?"
@@ -68,7 +68,7 @@ def riddle():
 def check_answ(key):
     i = 0
     while i <=1:
-        inp = input("->").lower()
+        inp = input("-> ").lower()
         if inp in key:
             return "correct"
         elif i < 1:
