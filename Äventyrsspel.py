@@ -2,19 +2,20 @@ import random
 import riddles
 import mastermind
 import rockpaperscissor
+import generate_traps
 import resetfile
-import time
+from time import sleep
 
 
 def slow_print(text):
     for letter in text:
         print(letter, end="", flush=True)
-        time.sleep(0.02)
+        sleep(0.02)
 
 def very_slow_print(text):
     for letter in text:
         print(letter, end="", flush=True)
-        time.sleep(0.8)
+        sleep(0.8)
 
 
 class Colors:
@@ -31,7 +32,7 @@ class Colors:
 class Player:
     def __init__(self):
         self.name = ""
-        self.HP = 50
+        self.HP = 10
         self.max_HP = 50
         self.STR = 2
         self.LVL = 1
@@ -70,12 +71,12 @@ class Player:
         if len(self.inv)>= self.inv_size:
             
             while True:
-                slow_print("Your bag is filled traveler, do you wish to remove something?")
-                inp = input("(y/n) -> ")
-                if inp.lower() == "y":
+                slow_print("Your bag is filled traveler, do you wish to remove something?\n")
+                inp = input("(y/n) -> ").lower()
+                if inp == "y" or inp == "yes":
                     self.remove_from_inv_menu()
                     break
-                elif inp.lower() == "n":
+                elif inp == "n" or inp == "no":
                     return 1
                 else:
                     slow_print(f"You failed to answer correctly {player.name}\n")
@@ -102,31 +103,39 @@ class Player:
                 print()  
         else:
             print("Empty")
+            return "Empty"
 
     def use_item(self):
         slow_print("What item do you wish to consume?")
-        inp = input("->").lower()
+        inp = input("-> ").lower()
         for item in self.inv:
             if item.name.lower() == inp.lower() and item.type == "Health":
-                if self.HP + item.bonus < self.max_HP:
-                    self.HP += item.bonus
+                if self.HP == self.max_HP:
+                    slow_print(f"You cant use this item since your already at max HP {Colors.red}{self.HP}{Colors.remove}\n")
+                    break
                 else:
-                    self.HP = self.max_HP
-                slow_print(f"{Colors.green}you feel your vigour returning, HP is now {Colors.red}{self.HP}{Colors.remove}\n")
-                self.inv.remove(item)
-    
+                    if self.HP + item.bonus < self.max_HP:
+                        self.HP += item.bonus
+                    else:
+                        self.HP = self.max_HP
+                    slow_print(f"{Colors.green}you feel your vigour returning, HP is now {Colors.red}{self.HP}{Colors.remove}\n")
+                    self.inv.remove(item)
+            else:
+                slow_print("You can not use that item")
+        
     def wants_to_use_item(self):
         healing_item_in_inventory = False
         for item in player.inv:
             if item.type == "Health":
                 healing_item_in_inventory = True
+    
 
         if healing_item_in_inventory:
-            slow_print("Do you want to use an item?")     
+            slow_print("Do you want to use an item?\n")     
             inp = input("(y/n) -> ").lower()
-            if inp == "y":
+            if inp == "y" or inp == "yes":
                 return True
-            elif inp == "n":
+            elif inp == "n" or inp == "no":
                 slow_print("You chose not to do anything\n")
                 return False
             else:
@@ -222,13 +231,15 @@ i  `: ( ____  ,-::::::' ::j  [:```          [8:   )
             print("")
             player.HP -= damage
 
+            if player.HP < 1:
+                game_over()
+            slow_print(f"You have {Colors.red}{player.HP} HP{Colors.remove} left!\n")
+
             if player.wants_to_use_item():
                 player.display_inventory()
                 player.use_item()
 
-            if player.HP < 1:
-                game_over()
-            slow_print(f"You have {Colors.red}{player.HP} HP{Colors.remove} left!\n")
+            
 
 
 #Balansera
@@ -239,8 +250,10 @@ boss = Monster("Puzzlemaster", 20, 300)
 
 
 def game_over():
-    very_slow_print(f"{Colors.bold + Colors.red}Game over...{Colors.remove}")
-    exit()
+    slow_print(f"{Colors.bold + Colors.red}Game over...{Colors.remove}\n")
+    inp = input("Do you wish to play again traveler(y/n)").lower
+    if inp == "y" or inp == "yes":
+        resetfile.reset
 
 
 # alla items har ett namn, en typ och en bonus (hur mycket de boostar styrka/hp)
@@ -262,16 +275,16 @@ class Item:
 
 
 #Balansera denna skit
-itemlist = [Item("Wood mallet", "STR", 1),Item("Stone mallet", "STR", 2), Item("Iron axe", "STR", 3), Item("Wooden sword", "STR", 1), Item("Stone sword", "STR", 2), Item("Diamond sword", "STR", 4), Item("Healing potion", "Health", 8), Item("Good healing potion", "Health", 11), Item("Legendary healing potion", "Health", 14), Item("Mashed herbs", "Health", 5), Item("Small bandage","Health", 6), Item("Medium bandage", "Health", 9)]
+itemlist = [Item("Wooden mallet", "STR", 1),Item("Stone mallet", "STR", 2), Item("Iron axe", "STR", 3), Item("Wooden sword", "STR", 1), Item("Stone sword", "STR", 2), Item("Diamond sword", "STR", 4), Item("Healing potion", "Health", 8), Item("Good healing potion", "Health", 11), Item("Legendary healing potion", "Health", 14), Item("Mashed herbs", "Health", 5), Item("Small bandage","Health", 6), Item("Medium bandage", "Health", 9)]
 no_stat_itemlist = [Item("Stone", "None", 0), Item("String", "None", 0), Item("Stick", "None", 0,), Item("Bone", "None", 0), Item("Rotten leg", "None", 0), Item("Paper", "None", 0)]
 
 
 def start_over():
-    slow_print(f"Congratulations on winning the game and defeating the {Colors.bold}Puzzlemaster{Colors.remove}")
+    slow_print(f"Congratulations on winning the game and defeating the {Colors.bold}Puzzlemaster{Colors.remove}\n")
     while True:
         inp = input(f"Do you want to play again {player.name}? (y/n) ->").lower()
-        if inp in "y" or "n":
-            if inp == "y":
+        if inp in "y" or "n" or "no" or "yes":
+            if inp == "y" or inp == "y":
                 player.reset()
             else:
                 slow_print("See you next time traveler!\n")
@@ -286,8 +299,8 @@ def fight_puzzlemaster():
     slow_print("You have shown yourself worthy\n")
     slow_print("So, do you wanna play a game?\n")
     inp = input("(y/n) ").lower()
-    if inp != "n" or inp != "y":
-        if inp == "n":
+    if inp != "n" or inp != "y" or inp != "no" or inp != "yes":
+        if inp == "n" or inp == "no":
             slow_print("Have fun playing this game again!")
             very_slow_print("...")
             player.reset()
@@ -428,11 +441,11 @@ def generate_room():
     
     rand_num = (random.randint(0, 100))
 
-    if 100>= rand_num >=60:
+    if 100>= rand_num >=50:
         monster_room()
     elif 29>= rand_num >=0:
         chest_room()
-    elif 59>= rand_num >=30:
+    elif 49>= rand_num >=30:
         trap_room()
     return
 
@@ -446,7 +459,7 @@ def monster_room():
         possible_monsters += difficult_monsters
     if player.LVL > 10:
         if random.randint(1, 3) == 1:
-            if fight_puzzlemaster() == True:
+            if fight_puzzlemaster():
                 slow_print("You won everything")
                 print('''
 Alone, I stand amidst the aftermath of cunning and riddles, the victor in a battle of wits and will. 
@@ -499,10 +512,12 @@ def chest_room():
                 chest_inv.pop(inp)
       
 def trap_room():
-    slow_print("A trap suddenly activates under your feet, are you quick-footed enough as to not fall to your grave?\n")
+    trap = generate_traps.get_trap()
+    slow_print(trap.text)
+    
     input("Press enter to avoid\n")
     roll = random.randint(1,20)
-    if (roll + player.STR) >= 15:
+    if (roll + (player.STR)/2) >= 14:
         slow_print("You narrowly avoid the trap laid before you\n")
     else:
         slow_print(f"{Colors.red}You tumble into the trap and spikes impale you{Colors.remove}\n")
@@ -527,6 +542,7 @@ Choose wisely between the (left), (middle) and (right) door traveler""")
             print(f"You walked face first into wall")
 
 player = Player()
+print("")
 
 slow_print("You wake up in a dark and moist dungeon, your head aches and you feel weak...\n")
 namn = input(f"What is your name traveler\n-> ")
@@ -552,13 +568,21 @@ What do you want to do?
     elif str(inp) == "2":
         player.stats()
     elif str(inp) == "3":
-        player.display_inv()
-        if player.wants_to_use_item:
-            player.use_item()
+        print("")
+        if not(player.display_inv() == "Empty"):
+            while True:
+                inp = input("Do you wish to use an item (y/n) ").lower()
+                if inp == "n" or inp == "no":
+                    break
+                if inp == "y" or inp == "yes":
+                    player.use_item()
+                else:
+                    slow_print("Incorrect input\n")
 
     elif str(inp) == "4":
-        fight_puzzlemaster()
-        player.inv.append(random.choice(itemlist))
+        if fight_puzzlemaster():
+            print("you won")
+            start_over()
 
     else:
-        print("You sat down and wondered how you got here")
+        slow_print("You sat down and wondered how you got here")
