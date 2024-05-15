@@ -51,7 +51,7 @@ answer16 = ["a candle", "candle", "candles"]
 riddle17 = "I can be cracked, made, told, and played. What am I?"
 answer17 = ["a joke", "joke", "jokes"]
 
-riddle_list = {
+riddle_dict = {
     riddle1 : answer1,
     riddle2 : answer2,
     riddle3 : answer3,
@@ -72,7 +72,7 @@ riddle_list = {
 
 
 def riddle():
-    rid, key = rand.choice(list(riddle_list.items()))
+    rid, key = rand.choice(list(riddle_dict.items()))
     return rid, key
 
 def check_answ(key):
