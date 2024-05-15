@@ -1,31 +1,41 @@
 import random as rand
 
-
 riddle1 = "I'm always hungry, I must always be fed. The finger I touch, will soon turn red. What am I?"
 answer1 = ["fire", "a fire"]
+
 riddle2 = "I speak without a mouth and hear without ears. I have no body, but I come alive with wind. What am I?"
 answer2 = ["echo", "an echo"]
+
 riddle3 = "The more you take, the more you leave behind. What am I?"
 answer3 = ["footsteps", "footstep"]
+
 riddle4 = "What’s a knight’s favorite type of music?"
 answer4 = ["metal", "heavy metal"]
+
 riddle5 = "Why did the blacksmith have trouble sleeping at night?"
 answer5 = ["knightmares", "knight mares"]
 
 riddle6 = "I’m a heavy metal object, dropped to the sea floor, keeping ships in place."
 answer6 = ["anchor", "an anchor"]
+
 riddle7 = "The more of this there is, the less you see. What is it"
 answer7 = ["darkness", "the darkness"]
+
 riddle8 = "I speak without a mouth and hear without ears. I have no body, but I come alive with light. What am I?"
 answer8 = ["an image", "a reflection", "image", "reflection"]
+
 riddle9 = "I'm not alive, but I can grow; I don't have lungs, but I need air; I don't have a mouth, but water kills me. What am I?"
 answer9 = ["fire", "a flame"]
+
 riddle10 = "I have cities, but no houses. I have forests, but no trees. I have rivers, but no water. What am I?"
 answer10 = ["a map", "a world map", "map"]
+
 riddle11 = "What runs around the whole yard without moving?"
 answer11 = ["a fence", "a perimeter", "fence"]
+
 riddle12 = "What has a neck but no head?"
 answer12 = ["a bottle", "a jar", "bottle", "jar"]
+
 riddle13 = "What has keys but can't open locks?"
 answer13 = ["a piano", "piano"]
 
