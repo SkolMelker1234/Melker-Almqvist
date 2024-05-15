@@ -1,39 +1,18 @@
-import random as rand
-
-
+import random
 def play():
     rps_lst = ["r", "p", "s"]
     while True:
         inp = input(f"Rock(r), Paper(p) or Scissors(s)?\n-> ")
-        enemy = rand.choice(rps_lst)
-        if inp.lower() == "r":
-            if enemy == "s":
-                print("You win")
-                return "You win"
-            elif enemy == "r":
-                print("play again")
-                continue
-            else:
-                print("You lost")
-                return "You lost"
+        if inp not in rps_lst:
+            print("Wrong input silly human")
+            continue
+        enemy = random.choice(rps_lst)
         
-        elif inp.lower() == "p":
-            if enemy == "s":
-                print("You lost")
-                return "You lost"
-            elif enemy == "r":
-                print("You win")
-                return "You win"
-            else:
-                print("Play again")
-                continue
+        if inp.lower() == enemy:
+            print("Tie, try again")
+            continue
+        elif inp == "r" and enemy == "s" or inp == "s" and enemy == "p" or inp == "p" and enemy == "r":
+            return "You win"
         else:
-            if enemy == "s":
-                print("Play again")
-                continue
-            elif enemy == "r":
-                print("You lost")
-                return "You lost"
-            else:
-                print("You win")
-                return "You win"
+            return "You lost"
+        
