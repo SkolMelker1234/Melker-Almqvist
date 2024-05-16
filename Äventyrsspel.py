@@ -40,21 +40,22 @@ class Player:
         self.inv = []
         self.inv_size = 2
 
-    #i resetfile har jag importat  funktionen call från librariet subprocess
+
+    #I resetfile har jag importat  funktionen call från librariet subprocess
     #Call låter oss starta en python fil, men man kan inte starta samma python programm i samma fil
     #Därför behövdes det anropas en annan fil som "startar om"
     def reset(self):
         resetfile.reset()
 
 
-    # ta bort item från inventory och tar bort strength ifall det ges av itemet
+    #Tar bort item från inventory och tar bort strength ifall det ges av itemet
     def remove_from_inv(self, item):
         self.inv.remove(item)
         if item.type == "STR":
             self.STR -= item.bonus
     
     
-
+    #Skriver ut ditt inventory och frågar vad man vill ta bort 
     def remove_from_inv_menu(self):
         self.display_inv()
         while True:
@@ -71,11 +72,12 @@ class Player:
             print("")
 
 
+    #Lägger till saker i ditt inventory om det inte är fullt
     def add_to_inv(self, item):
         if len(self.inv)>= self.inv_size:
             
             while True:
-                slow_print("Your bag is filled traveler, do you wish to remove something?\n")
+                slow_print("Your bag is filled traveler, do you wish to remove something?\n") #Frågar om du vill kasta något 
                 inp = input("(y/n) -> ").lower()
                 if inp == "y" or inp == "yes":
                     self.remove_from_inv_menu()
@@ -88,17 +90,18 @@ class Player:
         self.inv.append(item)
         slow_print(f"You put {item.name} in your bag\n")
         if item.type == "STR":
-            self.STR += item.bonus
+            self.STR += item.bonus #Ger spelaren den STR som itemet har
             slow_print(f"You feel your {Colors.red}strength{Colors.remove} increase by {Colors.red}{item.bonus}{Colors.remove}\n")    
         print("")   
 
 
+    #Skriver ut det som finns i ditt inventory
     def display_inv(self):
         print(f"\n   Inventory {len(self.inv)}/{self.inv_size}")
         print("------------------")
         if len(self.inv) > 0:
             for item in self.inv:
-                if item.type == "Health" or item.type == "STR":
+                if item.type == "Health" or item.type == "STR": 
                     if item.type == "Health":
                         print(f"{item.name} {Colors.green}  {item.bonus} {Colors.remove}")
                     else:
@@ -111,6 +114,7 @@ class Player:
             return "Empty"
 
 
+    #Denna funktion gör det möjligt för det att använda items
     def use_item(self):
         slow_print("What item do you wish to consume?")
         while True:
@@ -118,14 +122,14 @@ class Player:
             for item in self.inv:
                 if item.name.lower() == inp.lower():
                     if item.type == "Health":
-                        if self.HP == self.max_HP:
+                        if self.HP == self.max_HP: #Om du redan är på max HP kan du inte använda ett healing item
                             slow_print(f"You can't use this item since you're already at max HP\n")
                             return
                         else:
                             if self.HP + item.bonus < self.max_HP:
                                 self.HP += item.bonus
                             else:
-                                self.HP = self.max_HP
+                                self.HP = self.max_HP #Du ska inte kunna ha mer HP än ditt max
                             slow_print(f"{Colors.green}You feel your vigour returning, HP is now {self.HP}{Colors.remove}\n")
                             self.inv.remove(item)
                             return
@@ -137,6 +141,7 @@ class Player:
                 print("You claim to own something which you do not")
 
 
+    #Ser om du kan använda något i ditt inventory
     def wish_to_use_item(self):
         healing_item_in_inventory = False
         for item in player.inv:
@@ -155,7 +160,7 @@ class Player:
                 slow_print("The moment escaped you\n")
                 return False
 
-
+    #Skriver ut dina stats
     def stats(self):
         print("")
         print(f"        {Colors.bold}Stats{Colors.remove}")
@@ -167,6 +172,7 @@ Your {Colors.red}strength{Colors.remove} is {Colors.red}{self.STR}{Colors.remove
 Your {Colors.bold}inventory{Colors.remove} has{Colors.bold} {self.inv_size} slots{Colors.remove}""")
 
 
+    #Gör att du kan levela upp och ger dig de förmåner som kommer med detta
     def level_up(self):
         self.LVL += 1
         self.max_HP += 2
@@ -183,14 +189,15 @@ class Monster:
     def __init__(self, name, STR, HP):
         self.name = name
         self.STR = STR
-        self.HP = HP
         self.maxHP = HP
+        self.HP = 0
 
 
+    #Här kan du slåss mot monster
     def fight(self, player):
-        self.HP = self.maxHP + random.choice([1, 2, 3, 0, -1, -2, -3])
+        self.HP = self.maxHP + random.randint(-3, 3)
         print("")
-        if self.name == "Hästjesper":
+        if self.name == "Hästjesper": #Lite extra lore
             print('''
 
        -""\\
@@ -235,11 +242,10 @@ i  `: ( ____  ,-::::::' ::j  [:```          [8:   )
                 slow_print(f"{self.name} was slain!\n")
                 print("")
                 player.level_up()
-                    
-                self.HP = self.maxHP + random.choice([1, -1, 0, -2, 2])
                 return
+            
             else:
-                slow_print(f"{self.name} has {Colors.green}{self.HP} HP{Colors.remove} left!\n")
+                slow_print(f"{self.name} has {Colors.green}{self.HP}/{self.maxHP} HP{Colors.remove} left!\n")
                 print("")
 
             damage = round(random.randint(1, 20) * self.STR/10)
@@ -265,6 +271,7 @@ difficult_monsters = [Monster("Hästjesper", 11, 40), Monster("Borkorc", 10, 45)
 boss = Monster("Puzzlemaster", 20, 300)
     
 
+#Om du dör går man till detta där man kan välja om man vill spela igen eller inte
 def game_over():
     slow_print(f"{Colors.bold + Colors.red}Game over...{Colors.remove}\n")
     while True:
@@ -282,7 +289,7 @@ def game_over():
 
 # alla items har ett namn, en och en bonus (hur mycket de boostar styrka/hp)
 class Item:
-    def __init__(self, name, type, bonus):
+    def __init__(self, name, type="None", bonus=0):
         self.name = name
         self.type = type
         self.bonus = bonus
@@ -294,12 +301,11 @@ itemlist = [Item("Wooden mallet", "STR", 1),Item("Stone mallet", "STR", 2), Item
             Item("Legendary healing potion", "Health", 22), Item("Mashed herbs", "Health", 5), 
             Item("Small bandage","Health", 6), Item("Medium bandage", "Health", 14)]
 
-no_stat_itemlist = [Item("Stone", "None", 0), Item("String", "None", 0), Item("Stick", "None", 0,), 
-                    Item("Bone", "None", 0), Item("Rotten leg", "None", 0), Item("Paper", "None", 0)]
+no_stat_itemlist = [Item("Stone"), Item("String"), Item("Stick",), 
+                    Item("Bone"), Item("Rotten leg"), Item("Paper")]
 
 
-#När spelet har avs
-#atu
+#När spelet har avslutats
 def start_over():
     slow_print(f"Congratulations on winning the game and defeating the {Colors.bold}Puzzlemaster{Colors.remove}\n")
     while True:
@@ -315,14 +321,16 @@ def start_over():
             print(f"{Colors.red}Incorrect input, try again{Colors.remove}")
 
 
+#Här är bossbattlet, det är inte lätt att vinna detta
 def fight_puzzlemaster():
+    boss.HP = 300
     print("")
     slow_print("A shining light appears and you get teleported to a grand room.\n")
     slow_print("In front of you a large figure stands, it was me all along it whispers silently, I was the voice inside your head, and I was the one who brought you to this dungeon to partake in my game\n")
     slow_print("You have shown yourself worthy\n")
     slow_print("So, do you wanna play a game?\n")
     inp = input("(y/n) ").lower()
-    if inp not in ["n", "y", "yes", "no", "1", "2"]:
+    if inp not in ["n", "y", "yes", "no", "1", "2"]: #Inmatningssäker
         print("I'm just assuming you said yes, I might have misheard")
     if inp in ["no", "n", "2"]:
         slow_print("Have fun playing this game again!")
@@ -332,7 +340,7 @@ def fight_puzzlemaster():
 
     slow_print("\nSO YOU WANT TO CHALLENGE ME?!?!??!?!\n")
     slow_print("Well, let the game begin!\n")
-    play = rockpaperscissor.play()
+    play = rockpaperscissor.play() #Här kallar vi på funktionen för att spela rock paper scissor i den filen
     if play == "You win":
         boss.HP -= 100
         slow_print(f"Puzzlemaster took {Colors.remove}100 damage{Colors.remove}\n")
@@ -344,7 +352,7 @@ def fight_puzzlemaster():
         if player.HP <= 0:
             game_over()
         else:
-            slow_print(f"Your new {Colors.green}HP{Colors.remove} is: {Colors.green}{player.HP}{Colors.remove}\n")
+            slow_print(f"Your new {Colors.green}HP{Colors.remove} is {Colors.green}{player.HP}{Colors.remove}\n")
         slow_print(f"Not that smart now {player.name}?\n")
         slow_print("Well I will let you live for now\n")
         slow_print("But do not be so sure of that next round\n")
@@ -364,7 +372,7 @@ def fight_puzzlemaster():
 88     `8'     88 `"8bbdP"Y8 `"YbbdP"'   "Y888 `"Ybbd8"' 88         88      88      88 88 88       88  `"8bbdP"Y8  
                                                                                                                    
           ''')
-    play = mastermind.play()
+    play = mastermind.play() #startar mastermind i dens fil
     if play == "You win":
         boss.HP -= 100
         slow_print(f"Puzzlemaster took {Colors.green}100 damage{Colors.remove}\n")
@@ -373,7 +381,7 @@ def fight_puzzlemaster():
 
 
     else: 
-        player.HP = 0
+        player.HP = 0 #Om man misslyckas här dör man
         slow_print(f"You lost the game and lost {Colors.green}10 HP{Colors.remove}\n")
         slow_print(f"Your new {Colors.green}HP{Colors.remove} is: {Colors.green}{player.HP}{Colors.remove}\n")
         slow_print(f"You spectacularly failed to {Colors.bold}CRACK THE CODE...{Colors.remove}\n")
@@ -394,7 +402,7 @@ def fight_puzzlemaster():
           
 ''')
     slow_print(f"This time you will not beat me {player.name}\n")
-    rid, key = riddles.riddle()
+    rid, key = riddles.riddle() #Här kallar vi på riddlefilen
     slow_print(rid)
     answ = riddles.check_answ(key)
     if answ == "correct":
@@ -403,15 +411,15 @@ def fight_puzzlemaster():
 
         
     else:
-        player.HP = 0
+        player.HP = 0 #Här är vi hårda på spelaren igen
         slow_print("You could not solve all of his puzzles.\n")
         slow_print("The Puzzlemaster got bored and smashed you with his mighty intellect\n")
         game_over()
         
     if boss.HP <= 0:
-        return True
+        return True #Om puzzlemaster är dör du vinner
     else:
-        slow_print(f"I am still {Colors.bold}alive!{Colors.remove}\n")
+        slow_print(f"I am still {Colors.bold}alive!{Colors.remove}\n") #Annars får du en sista chans 
         slow_print("You have one last chance!\n")
         slow_print("Solve this final riddle.\n")
         rid, key = riddles.riddle()
@@ -429,6 +437,7 @@ def fight_puzzlemaster():
         return True
         
 
+#Fixar loot till kistor
 def chest_loot():
     chest_inv = []
     num_item = random.randint(1,3)
@@ -438,7 +447,7 @@ def chest_loot():
     
     return chest_inv
 
-
+#Om man får en puzzlekista kommer man hit och får ett riddle
 def puzzle_chest():
     slow_print("It's a puzzle chest! In ordet to claim your prize you must complete the riddle inscribed on the chest!!\n")
     rid, key = riddles.riddle()
@@ -456,6 +465,7 @@ def puzzle_chest():
         return []
 
 
+#Här slumpar den om man får en puzzle eller vanlig kista
 def create_chest():
     #nor = 100-10
     #Puzz = 9-0
@@ -466,6 +476,7 @@ def create_chest():
         return puzzle_chest() 
 
 
+#Här slumpar vi fram rum
 def generate_room():
     #Monster 0-50
     #Kista 50-80
@@ -480,6 +491,8 @@ def generate_room():
         trap_room()
     return
 
+
+#Om man stöter på monster kommer man hit
 def monster_room():
     possible_monsters = easy_monsters
     if player.LVL > 3:
@@ -489,7 +502,7 @@ def monster_room():
     if player.LVL > 9:
         possible_monsters += difficult_monsters
     if player.LVL > 10:
-        if random.randint(1, 3) == 1:
+        if random.randint(1, 3) == 1: #Här behöver man har tur för att möte bossen så att man inte automatiskt får bossen
             if fight_puzzlemaster():
                 slow_print("You won everything")
                 slow_print('''
@@ -503,24 +516,25 @@ But let it be known, the victory is not yours alone. It is a testament to the re
 So, with the echoes of victory ringing in your ears and the shadows of doubt banished from your heart, you press onward. 
 For the road stretches ever forward, and the challenges that lie ahead are but new riddles waiting to be solved.
 Farewell to the darkness that once held sway, and welcome to the dawn of a new adventure. 
-Alone, yet undaunted, you march into the unknown, for your spirit is unyielding, and your resolve absolute.                
-              ''')
+Alone, yet undaunted, you march into the unknown, for your spirit is unyielding, and your resolve absolute.''')
                 start_over()
         
     monster = random.choice(possible_monsters)
     monster.fight(player)
     
+
+#Om man får en kista kommer man hit    
 def chest_room(): 
     print("")
     slow_print("You walked into a chest room! Claim your items quickly and proceed...\n")
-    chest_inv = create_chest()
+    chest_inv = create_chest() #Kallar på funktionen för att lägga saker i kistan
     while True:
         i = 0
         if len(chest_inv) == 0:
             return
         
         slow_print("What item tempts your hands traveler? \n")
-        for item in chest_inv:
+        for item in chest_inv: 
             print(f"{i+1}: {item.name}")
             i += 1
         print(f"{i+1}: Done")
@@ -539,22 +553,26 @@ def chest_room():
         else:
             if player.add_to_inv(chest_inv[inp]) != "bag_full":
                 chest_inv.pop(inp)
-      
+
+
+#Om du får en fälla kommer du hit      
 def trap_room():
-    trap = generate_traps.get_trap()
+    trap = generate_traps.get_trap() #Kallar på funktionen för att generera traps i traps filen
     slow_print(f"{trap.text}\n")   
     input("Press enter to continue\n")
     roll = random.randint(1,20)
     if ((roll + player.STR)/2) >= 10:
-        slow_print("You got lucky and avoided the trap laid before you\n")
+        slow_print("You got lucky and avoided the trap laid before you\n") #Lite roligt om man kan undika fällan
     else:
         slow_print(f"{Colors.red}You could not avoid the trap and took some damage{Colors.remove}\n")
-        player.HP = player.HP - random.randint(1,5) - trap.DMG
+        player.HP = player.HP - random.randint(1,5) - trap.DMG #Lite random är roligt
         if player.HP < 1:
             game_over()
         slow_print(f"Your {Colors.green}HP{Colors.remove} is now {Colors.green}{player.HP}{Colors.remove}\n")
     return 
 
+
+#Här kan du välja rum trotts att det är slumpat
 def choose_room():
     print("""
 Behind one of these doors lies treasure
@@ -569,13 +587,17 @@ Choose wisely between the (left), (middle) and (right) door traveler""")
         else:
             print(f"You walked face first into wall")
 
+
+#Spelaren skapas
 player = Player()
 print("")
 
+#Lite text för att starta spelet
 slow_print("You wake up in a dark and moist dungeon, your head aches and you feel weak...\n")
 namn = str(input(f"What is your name traveler\n-> ")).replace(" ", "")
 
 
+#Ger spelaren ett namn
 player.name = namn
 if len(player.name) == 0:
         player.name = "Nikodesmos"
@@ -583,6 +605,7 @@ if player.name == "Gabriel":
     player.add_to_inv(itemlist[5])
     player.add_to_inv(itemlist[8])
 
+#Här kan du välja ad vill du göra
 print("")
 slow_print(f"Hello {player.name}.. Have fun in my dungeon *omnious laughter that slowly fades away*\n")
 while True:
